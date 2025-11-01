@@ -41,7 +41,6 @@
     text-shadow: 0 0 8px rgba(255,0,51,0.6);
   }
 
-  /* Centered, responsive image at ~50% of prior size */
   .poster {
     display: block;
     margin: 24px auto;
@@ -59,7 +58,6 @@
     transform: translateY(0);
   }
 
-  /* Progress bar */
   .bar-wrap {
     margin-top: 6px;
     width: 100%;
@@ -111,7 +109,6 @@ async function newLine(delay = 400) {
   await sleep(delay);
 }
 
-// Solid bar 5-second progress
 function addProgressBar() {
   const wrap = document.createElement('div');
   const barWrap = document.createElement('div');
@@ -129,7 +126,7 @@ function addProgressBar() {
 
 async function progressBar() {
   const { bar, pct } = addProgressBar();
-  const duration = 5000; // 5 seconds
+  const duration = 5000;
   const start = performance.now();
 
   await new Promise(resolve => {
@@ -146,25 +143,22 @@ async function progressBar() {
 }
 
 async function run() {
-  await typeText("C:\> cd duke3d");
+  await typeText("C:\\> cd duke3d");
   await newLine(); await newLine();
 
-  await typeText("C:\DUKE3D> duke3d.exe");
+  await typeText("C:\\DUKE3D> duke3d.exe");
   await newLine(); await newLine();
 
   await typeText("Loading DUKE NUKEM 3D...");
   await progressBar();
   await newLine();
 
-  // Prompt for cheat code
   await typeText("PLEASE ENTER CHEAT CODE:");
-  await newLine(); // show code on the next line with no extra blank line
+  await newLine();
 
-  // TYPE the red bold DNKROZ directly below
   await typeSpan("> DNKROZ", "red");
   await newLine(); await newLine();
 
-  // Symmetrical dot lines around INITIALISING
   await typeText("........");
   await newLine();
   await typeText("INITIALISING");
@@ -172,11 +166,11 @@ async function run() {
   await typeText("........");
   await newLine(); await newLine();
 
-  // Prepare image BEFORE the gold line, so it can fade while typing
+  // Add the Duke image after INITIALISING
   const img = document.createElement("img");
   img.className = "poster";
-  img.alt = "Duke Nukem themed poster";
-  img.src = "https://upload.wikimedia.org/wikipedia/en/1/13/Duke_Nukem_3D_Coverart.png";
+  img.alt = "Duke Nukem";
+  img.src = "https://images.pushsquare.com/e7d635fd31ff1/duke-nukem.300x.jpg";
   pre.appendChild(img);
 
   // Start typing the gold line slowly
@@ -186,12 +180,10 @@ async function run() {
   await sleep(250);
   img.classList.add("show");
 
-  // Wait until gold line typing finishes
   await goldPromise;
 
-  await newLine(); // end with one line break
+  await newLine();
 
-  // Blinking underscore cursor
   const cursor = document.createElement("span");
   cursor.className = "cursor";
   cursor.textContent = "_";
