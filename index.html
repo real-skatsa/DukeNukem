@@ -143,10 +143,11 @@ async function progressBar() {
 }
 
 async function run() {
-  await typeText("C:\\> cd duke3d");
+  // Fixed backslashes by escaping them (\\)
+  await typeText("C:\\\\> cd duke3d");
   await newLine(); await newLine();
 
-  await typeText("C:\\DUKE3D> duke3d.exe");
+  await typeText("C:\\\\DUKE3D> duke3d.exe");
   await newLine(); await newLine();
 
   await typeText("Loading DUKE NUKEM 3D...");
@@ -166,22 +167,19 @@ async function run() {
   await typeText("........");
   await newLine(); await newLine();
 
-  // Add the Duke image after INITIALISING
+  // Duke image
   const img = document.createElement("img");
   img.className = "poster";
   img.alt = "Duke Nukem";
   img.src = "https://images.pushsquare.com/e7d635fd31ff1/duke-nukem.300x.jpg";
   pre.appendChild(img);
 
-  // Start typing the gold line slowly
   const goldPromise = typeSpan("> GOD MODE Activated for Chris's 40th Birthday", "gold", 60);
 
-  // Slight delay, then start fading image in WHILE text is being typed
   await sleep(250);
   img.classList.add("show");
 
   await goldPromise;
-
   await newLine();
 
   const cursor = document.createElement("span");
