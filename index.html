@@ -5,14 +5,21 @@
 <title>Chris's 40th – DNKROZ Console</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
+  :root{
+    --green: #00ff66;
+    --gold:  #ffcc00;
+    --red:   #ff0033;
+    --bg:    #000000;
+  }
+  html, body { height: 100%; }
   body {
-    background: #000;
-    color: #00ff66;
+    margin: 0;
+    background: var(--bg);
+    color: var(--green);
     font-family: "Courier New", monospace;
     font-size: 18px;
     line-height: 1.6;
     padding: 40px;
-    margin: 0;
   }
   pre {
     margin: 0;
@@ -20,22 +27,56 @@
     word-break: break-word;
     text-shadow: 0 0 6px rgba(0,255,102,0.4);
   }
-  .cursor {
-    animation: blink 1s steps(1) infinite;
-  }
+  .cursor { animation: blink 1s steps(1) infinite; }
   @keyframes blink { 50% { opacity: 0; } }
+
   .gold {
-    color: #ffcc00;
+    color: var(--gold);
     text-shadow: 0 0 8px rgba(255,204,0,0.6);
+    font-weight: bold;
   }
+  .red {
+    color: var(--red);
+    font-weight: bold;
+    text-shadow: 0 0 8px rgba(255,0,51,0.6);
+  }
+
+  /* Centered, responsive image at ~50% of prior size */
   .poster {
     display: block;
     margin: 24px auto;
-    max-width: 90%;
-    width: 700px;
+    max-width: 45%;
+    width: 350px;
     height: auto;
-    border: 1px solid #00ff66;
+    border: 1px solid var(--green);
     box-shadow: 0 0 8px rgba(0,255,102,0.25);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 900ms ease, transform 900ms ease;
+  }
+  .poster.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Progress bar */
+  .bar-wrap {
+    margin-top: 6px;
+    width: 100%;
+    max-width: 520px;
+    border: 1px solid var(--green);
+    padding: 2px;
+    box-shadow: 0 0 8px rgba(0,255,102,0.25) inset;
+  }
+  .bar {
+    height: 14px;
+    width: 0%;
+    background: var(--green);
+    box-shadow: 0 0 8px rgba(0,255,102,0.65);
+    transition: width 0.05s linear;
+  }
+  .pct {
+    margin-top: 4px;
   }
 </style>
 </head>
@@ -45,54 +86,112 @@
 <script>
 const pre = document.getElementById("console");
 
+function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
 async function typeText(text, speed = 50) {
   for (let i = 0; i < text.length; i++) {
     pre.innerHTML += text[i];
-    await new Promise(r => setTimeout(r, speed));
+    await sleep(speed);
   }
+}
+
+async function typeSpan(text, className, speed = 50) {
+  const span = document.createElement("span");
+  span.className = className;
+  pre.appendChild(span);
+  for (let i = 0; i < text.length; i++) {
+    span.textContent += text[i];
+    await sleep(speed);
+  }
+  return span;
 }
 
 async function newLine(delay = 400) {
   pre.innerHTML += "<br>";
-  await new Promise(r => setTimeout(r, delay));
+  await sleep(delay);
+}
+
+// Solid bar 5-second progress
+function addProgressBar() {
+  const wrap = document.createElement('div');
+  const barWrap = document.createElement('div');
+  const bar = document.createElement('div');
+  const pct = document.createElement('div');
+  barWrap.className = 'bar-wrap';
+  bar.className = 'bar';
+  pct.className = 'pct';
+  wrap.appendChild(barWrap);
+  barWrap.appendChild(bar);
+  wrap.appendChild(pct);
+  pre.appendChild(wrap);
+  return { bar, pct };
 }
 
 async function progressBar() {
-  for (let i = 0; i <= 100; i += 2) {
-    pre.innerHTML = pre.innerHTML.replace(/\d{1,3}%?$/, "") + i + "%";
-    await new Promise(r => setTimeout(r, 120)); // ≈6s total
-  }
+  const { bar, pct } = addProgressBar();
+  const duration = 5000; // 5 seconds
+  const start = performance.now();
+
+  await new Promise(resolve => {
+    const step = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      const p = Math.round(t * 100);
+      bar.style.width = p + "%";
+      pct.textContent = " " + p + "%";
+      if (t < 1) requestAnimationFrame(step);
+      else resolve();
+    };
+    requestAnimationFrame(step);
+  });
 }
 
 async function run() {
-  await typeText("C:\\> cd duke3d");
+  await typeText("C:\\\\> cd duke3d");
   await newLine(); await newLine();
 
-  await typeText("C:\\DUKE3D> duke3d.exe");
+  await typeText("C:\\\\DUKE3D> duke3d.exe");
   await newLine(); await newLine();
 
-  await typeText("Loading Duke Nukem 3D... ");
+  await typeText("Loading DUKE NUKEM 3D...");
   await progressBar();
-  await newLine(); await newLine();
-
-  await typeText("> DNKROZ");
   await newLine();
-  await typeText("........ INITIALISING ........");
+
+  // Prompt for cheat code
+  await typeText("PLEASE ENTER CHEAT CODE:");
+  await newLine(); // show code on the next line with no extra blank line
+
+  // TYPE the red bold DNKROZ directly below
+  await typeSpan("> DNKROZ", "red");
   await newLine(); await newLine();
 
-  const goldText = document.createElement("span");
-  goldText.className = "gold";
-  goldText.textContent = ": NUKEM MODE activated at Chris's 40th birthday";
-  pre.appendChild(goldText);
+  // Symmetrical dot lines around INITIALISING
+  await typeText("........");
+  await newLine();
+  await typeText("INITIALISING");
+  await newLine();
+  await typeText("........");
+  await newLine(); await newLine();
 
-  pre.innerHTML += "<br><br>";
-
+  // Prepare image BEFORE the gold line, so it can fade while typing
   const img = document.createElement("img");
   img.className = "poster";
-  img.alt = "Duke Nukem 3D themed poster";
-  img.src = "https://i.imgur.com/mQn3y8s.jpeg"; // Duke Nukem artt
+  img.alt = "Duke Nukem themed poster";
+  img.src = "https://upload.wikimedia.org/wikipedia/en/1/13/Duke_Nukem_3D_Coverart.png";
   pre.appendChild(img);
 
+  // Start typing the gold line slowly
+  const goldPromise = typeSpan("> GOD MODE Activated for Chris's 40th Birthday", "gold", 60);
+
+  // Slight delay, then start fading image in WHILE text is being typed
+  await sleep(250);
+  img.classList.add("show");
+
+  // Wait until gold line typing finishes
+  await goldPromise;
+
+  await newLine(); // end with one line break
+
+  // Blinking underscore cursor
   const cursor = document.createElement("span");
   cursor.className = "cursor";
   cursor.textContent = "_";
